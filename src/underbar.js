@@ -38,6 +38,8 @@ var _ = {};
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    var amount = array.length > n ? array.length - n : 0;
+    return n === undefined ? array[array.length - 1] : array.slice(amount);
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -46,6 +48,16 @@ var _ = {};
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
+    if(Array.isArray(collection)) {
+ for (var i = 0; i < collection.length; i++) {
+      iterator(collection[i], i, collection);
+    };
+
+    } else {
+      for (var prop in collection) {
+        iterator(collection[prop], prop, collection);
+      }
+    }
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
@@ -67,16 +79,65 @@ var _ = {};
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var return_array = [];
+    _.each(collection, function(item) {
+        if(test(item)) {
+          return_array.push(item);
+        }
+    });  // end of _.each call
+    return return_array;
+
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+    var ret_arr = []; // empty arrary which will contain the results to return
+
+    ret_arr = _.filter(collection, function(item) {
+        if(!test(item)) {  // run truth test, if item fails it returns true so 
+                           // _.filter will push that item to its return array
+          return true;
+        }  // end of if(!test(item))
+    }); // end of _.filter call
+
+    return ret_arr;
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+
+      var retArr = []; // array to populate with with unique items from array
+
+      if(arguments[1] && arguments[2] != undefined) { // sorted list w/ iterator
+        var iterator = arguments[2];
+        var iterator_result = undefined;
+
+        _.each(array, function(item) {
+          iterator_result = iterator(item);
+          if(_.indexOf(retArr, iterator_result) === -1) {
+            retArr.push(iterator_result);
+          }
+        });  // end of _.each call
+
+      } else if (arguments[1]) {  // sorted list no iterator
+
+        _.each(array, function(item) {
+
+          if(_.indexOf(retArr, item) === -1) {
+            retArr.push(item);
+          }
+
+        }); // end of _.each call
+
+      } else {  // unsorted list
+
+        retArr = ["test", "test"];
+
+      } // end of if, else if, else conditional
+      console.log(arguments[2]);
+      return retArr;
   };
 
 

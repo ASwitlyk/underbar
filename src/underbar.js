@@ -111,21 +111,19 @@ var _ = {};
       var retArr = []; // array to populate with with unique items from array
 
       if(arguments[1] && arguments[2] != undefined) { // sorted list w/ iterator
+        
         var iterator = arguments[2];
-        var iterator_result = undefined;
 
         _.each(array, function(item) {
-          iterator_result = iterator(item);
-          if(_.indexOf(retArr, iterator_result) === -1) {
-            retArr.push(iterator_result);
-          }
-        });  // end of _.each call
+            if(iterator(item) != iterator(retArr[retArr.length - 1])) {
+              retArr.push(item);
+            }
+        });
 
       } else if (arguments[1]) {  // sorted list no iterator
 
         _.each(array, function(item) {
-
-          if(_.indexOf(retArr, item) === -1) {
+          if(item != retArr[retArr.length - 1]) {
             retArr.push(item);
           }
 
@@ -133,7 +131,11 @@ var _ = {};
 
       } else {  // unsorted list
 
-        retArr = ["test", "test"];
+        _.each(array, function(item) {
+          if(_.indexOf(retArr, item) === -1) {
+            retArr.push(item);
+          }
+        });
 
       } // end of if, else if, else conditional
       console.log(arguments[2]);
@@ -146,6 +148,11 @@ var _ = {};
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    var result_array = [];
+    _.each(collection, function(value) {
+      result_array.push(iterator(value));
+    });
+    return result_array;
   };
 
   /*
@@ -169,6 +176,14 @@ var _ = {};
   // Calls the method named by methodName on each value in the list.
   // Note: you will nead to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+
+      var return_values = [];
+      _.each(collection, function(value) {
+        return_values.push(functionOrKey.apply(value));
+      });
+      
+      return return_values;
+
   };
 
   // Reduces an array or object to a single value by repetitively calling

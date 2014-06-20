@@ -204,7 +204,26 @@ var _ = {};
   //   var sum = _.reduce(numbers, function(total, number){
   //     return total + number;
   //   }, 0); // should be 6
-  _.reduce = function(collection, iterator, accumulator) {
+  _.reduce = function(collection, iterator, accumulator) {     
+       if(arguments[2] != undefined) {
+         _.each(collection, function(value) {
+             accumulator = iterator(accumulator, value);
+         })
+       } else {
+        var initial = collection[0];
+        var memo = iterator(initial, collection[0]);
+        for(var i = 1; i < collection.length; i++) {
+          memo = iterator(memo, collection[i]);
+        };
+          accumulator = memo;
+       }  // End of (arguments[2] != undefined) IF
+
+       return accumulator;
+      //iterator function takes two values e.g. function(memo, num), where memo is the initial state of the reduction and each
+      // successive step should be returned here
+     // if accumulator not set, accumulator will be collection[0]
+
+
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -221,14 +240,41 @@ var _ = {};
 
 
   // Determine whether all of the elements match a truth test.
-  _.every = function(collection, iterator) {
-    // TIP: Try re-using reduce() here.
+  _.every = function(collection, iterator) { 
+    // TIP: Try re-using reduce() here.  
+    
+    if(typeof iterator === 'function') {
+      return _.reduce(collection, function(memo, value) {
+        if (memo === false) {
+          return false;
+        } else {
+          return iterator(value) ? true : false;
+        }
+      }, true);
+    } else {
+      return _.reduce(collection, function(memo, value) {
+        if (memo === false) {
+          return false;
+        } else {
+          return value ? true : false;
+        }
+      }, true);
+    }
   };
+  
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    
+    if(typeof iterator != 'function') {
+      iterator = _.identity;
+    }
+    return !_.every(collection, function(value) {
+          return iterator(value) ? false : true;
+    });
+    
   };
 
 
@@ -251,11 +297,49 @@ var _ = {};
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    // create object variable to return and assign it the initial values of the user given destination object
+    var return_obj = obj;
+    //if there are source arguments as objects extend those to destination object, otherwise just return return_obj
+    if(arguments.length > 1) {
+      // for every arguments[1] to its length check to make sure it is an object, then extend the object's keys and properties to 
+      // destination object
+      for(var i = 1; i < arguments.length; i++) {
+        // check to make sure argument is an object
+        if(typeof arguments[i] === 'object') {
+          // extend argments[i] source objects keys and values to destination obj
+          _.each(arguments[i], function(value, key){
+             return_obj[key] = value;
+          });
+        }  // if not an object just continue incrementing through the argments parameters for potential source objects
+      } // End of for loop
+      return return_obj; 
+    } else {
+      return return_obj;
+    }
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    // create object variable to return and assign it the destination object values
+    var return_obj = obj;
+    // check if there are source objects in addition to destination objection, if not return destination object
+    if(arguments.length > 1) {
+      // for every parameter in addition to destination object check if they are objects, if they are go through all of the keys and
+      // properties in those objects and if that property is not in the return_obj add it to return_obj
+      for(var i = 1; i < arguments.length; i++) {
+        if(typeof arguments[i] === 'object') {
+          _.each(arguments[i], function(value, key){
+            if(!(key in return_obj)){
+              return_obj[key] = value;
+            }
+          });
+        } // end of if(typeof arguments[i] === 'object')
+      } // end of for loop
+      return return_obj;
+    } else {
+      return return_obj;
+    }
   };
 
 
@@ -297,6 +381,15 @@ var _ = {};
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+      var result_obj = {};
+    return function(arg) {
+       if(arg in result_obj) {
+        return result_obj[arg];
+       } else {
+        result_obj[arg] = func(arg);
+        return result_obj[arg];
+       }
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -306,6 +399,15 @@ var _ = {};
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+      if(arguments.length > 2) {
+        var args = [];
+        for(var i = 2; i < arguments.length; i++) {
+          args.push(arguments[i]);
+        }       
+        setTimeout(func.apply(this, args), wait);
+      } else {
+        setTimeout(func, wait);
+      }
   };
 
 

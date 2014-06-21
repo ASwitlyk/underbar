@@ -422,6 +422,16 @@ var _ = {};
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var orig_array = array.slice(0);  // create a copy of parameter array as a new array object
+    var ret_array = [];
+    var random;
+    _.each(array, function(value) {
+      random = Math.floor(Math.random() * orig_array.length);
+      ret_array.push(orig_array[random]);
+      orig_array.splice(random, 1);
+
+    });
+    return ret_array;
   };
 
 
